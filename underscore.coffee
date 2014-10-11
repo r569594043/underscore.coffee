@@ -93,6 +93,7 @@ _.reduce = (obj, iterator, memo, context) ->
     return obj.reduce iterator, memo
   _.each obj, (value, index, list) ->
     memo = iterator.call context, memo, value, index, list
+    return
   memo
 
 # The right-associative version of reduce, also known as foldr. Uses
@@ -277,10 +278,11 @@ _.intersect = (array) ->
 # Zip together multiple lists into a single array — elements that share
 # an index go together.
 _.zip = ->
-  length =  _.max _.pluck arguments, 'length'
+  args = _.toArray arguments
+  length =  _.max _.pluck args, 'length'
   results = new Array length
   for i in [0...length]
-    results[i] = _.pluck arguments, String i
+    results[i] = _.pluck args, String i
   results
 
 # If the browser doesn’t supply us with indexOf (I’m looking at you, MSIE),
@@ -305,7 +307,7 @@ _.lastIndexOf = (array, item) ->
 # Generate an integer Array containing an arithmetic progression. A port of
 # the native Python range function.
 _.range = (start, stop, step) ->
-  a         = arguments
+  a         = _.toArray arguments
   solo      = a.length <= 1
   i = start = if solo then 0 else a[0]
   stop      = if solo then a[0] else a[1]
@@ -329,7 +331,7 @@ _.range = (start, stop, step) ->
 # optionally). Binding with arguments is also known as curry.
 _.bind = (func, obj) ->
   args = _.rest arguments, 2
-  -> func.apply obj or root, args.concat arguments
+  -> func.apply obj or root, args.concat _.toArray arguments
 
 # Bind all of an object’s methods to that object. Useful for ensuring that
 # all callbacks defined on an object belong to it.
@@ -362,14 +364,14 @@ _.defer = (func) ->
 # allowing you to adjust arguments, run code before and after, and
 # conditionally execute the original function.
 _.wrap = (func, wrapper) ->
-  -> wrapper.apply wrapper, [func].concat arguments
+  -> wrapper.apply wrapper, [func].concat _.toArray arguments
 
 # Returns a function that is the composition of a list of functions, each
 # consuming the return value of the function that follows.
 _.compose = ->
-  funcs = arguments
+  funcs = _.toArray arguments
   ->
-    args = arguments
+    args = _.toArray arguments
     for i in [funcs.length - 1..0] by -1
       args = [funcs[i].apply(this, args)]
     args[0]
